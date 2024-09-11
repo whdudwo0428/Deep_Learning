@@ -20,16 +20,17 @@ class Layer_Dense:
         self.biases = np.random.uniform(0, 1, (1,n_neurons))
         #match-case문은 파이썬 3.10이상부터 사용 가능, if elif else대신 사용 가능할듯
 
-    def forward(self, inputs):
+    def forward(self, inputs, activation_Func= 'random'):
         layers_outputs = np.dot(inputs, np.array(self.weights)) + self.biases
         return layers_outputs
-    def activation_Func(self, ):
-        def relu(output):
-            return np.maximum(0, layers_outputs)
-        def sigmoid(output):
-            return 1 / (1 + np.exp(-layers_outputs))
-        def tanh(output):
-            return np.tanh(layers_outputs)
+      
+        match activation_Func:
+            case 'sigmoid' :
+                return 1/(1+np.exp(-layers_outputs))
+            case 'relu'    :
+                return np.maximum(0, layers_outputs)
+            case 'tanh'    :
+                return np.tanh(layers_outputs)
 
 inputs,y = spiral_data(samples=2, classes=3)
 plt.scatter(inputs[:, 0], inputs[:, 1], c=y, cmap = 'brg')
