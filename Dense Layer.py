@@ -17,13 +17,14 @@ class Layer_Dense:
                 self.weights = np.random.randn(n_inputs, n_neurons) * 0.01                      # Gaussian 초기화
             case _: #파이썬에서 _는 아무것도 입력되지 않은 상태를 의미함
                 self.weights = np.random.randn(n_inputs, n_neurons)  # 기본 랜덤 초기화
+                
         self.biases = np.random.uniform(0, 1, (1,n_neurons))
         #match-case문은 파이썬 3.10이상부터 사용 가능, if elif else대신 사용 가능할듯
 
     def forward(self, inputs, activation_Func= 'random'):
         layers_outputs = np.dot(inputs, np.array(self.weights)) + self.biases
         return layers_outputs
-      
+
         match activation_Func:
             case 'sigmoid' :
                 return 1/(1+np.exp(-layers_outputs))
@@ -31,7 +32,7 @@ class Layer_Dense:
                 return np.maximum(0, layers_outputs)
             case 'tanh'    :
                 return np.tanh(layers_outputs)
-
+        
 inputs,y = spiral_data(samples=2, classes=3)
 plt.scatter(inputs[:, 0], inputs[:, 1], c=y, cmap = 'brg')
 plt.show()
@@ -39,7 +40,7 @@ plt.show()
 DNN = Layer_Dense(2,5) #위 샘플은 2차원공간에서 정의되기 때문에 인풋을2로 설정해야함
 DNN2 = Layer_Dense(5,3) #인자에 위 가중치 초기화 방법 입력추가가능
 
-outputs = DNN.forward(inputs)  # forward 메서드의 결과를 저장
+outputs = DNN.forward(inputs)  # forward 메서드의 결과를 저장 //activation_Func = 'sigmoid', 'relu', 'tanh' 입력
 print(outputs)  # 실제로 forward 메서드의 출력값을 출력
 #행렬을 설명하자면  [첫 데이터에 대한 출력값5개]
 #                [두번째 데이터에 대한 출력값5개] -------
