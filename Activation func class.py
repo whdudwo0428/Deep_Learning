@@ -47,6 +47,7 @@ class activation_SIGMOID:
 class activation_TANH:
     def forward(self, inputs):
         return np.tanh(inputs)
+
 '''
 # 샘플 데이터 생성
 inputs, y = spiral_data(samples=2, classes=3)
@@ -73,14 +74,14 @@ Dense2.biases  = np.zeros((1,8))
 Dense3.weights = np.random.randn(8,1)*2
 Dense3.biases  = np.zeros((1,1))
 
-output1 = Dense1.forward(inputs)  # forward 메서드의 결과를 저장 //activation_Func = 'sigmoid', 'relu', 'tanh' 입력
-output1 = relu.forward(output1)
+output1 = Dense1.forward(inputs)
+Act_output1 = relu.forward(output1)
 
-output2 = Dense2.forward(output1)
-output2 = relu.forward(output2)
+output2 = Dense2.forward(Act_output1)
+Act_output2 = relu.forward(output2)
 
-output3 = Dense3.forward(output2)
-output2 = relu.forward(output3)
+output3 = Dense3.forward(Act_output2)
+Act_output3 = relu.forward(output3)
 
 print(output1)  # 실제로 forward 메서드의 출력값을 출력
 # 행렬을 설명하자면  [첫 데이터에 대한 출력값5개]
