@@ -58,15 +58,17 @@ plt.show()
 inputs = np.linspace(0, 2 * np.pi, 100).reshape(-1,1)
 y = np.sin(inputs)
 
-relu = activation_RELU()
+relu = activation_RELU()    # 인스턴스화 한다!
+sigm = activation_SIGMOID()
+tanh = activation_TANH()
 
 # Dense 레이어 생성
-Dense1 = Layer_Dense(1, 8)  # 위 샘플은 2차원공간에서 정의되기 때문에 인풋을2로 설정해야함
-Dense2 = Layer_Dense(8, 8)  # 인자에 위 가중치 초기화 방법 입력추가가능
-Dense3 = Layer_Dense(8, 1)  # 인자에 위 가중치 초기화 방법 입력추가가능
+Dense1 = Layer_Dense(1, 8, initialize_method='xavier')  # 위 샘플은 2차원공간에서 정의되기 때문에 인풋을2로 설정해야함
+Dense2 = Layer_Dense(8, 8, initialize_method='xavier')  # 인자에 위 가중치 초기화 방법 입력추가가능
+Dense3 = Layer_Dense(8, 1, initialize_method='xavier')  # 인자에 위 가중치 초기화 방법 입력추가가능
 
-Dense1.weights = np.array([[1.0],[1.0],[1.0],[1.0],[1.0],[1.0],[1.0],[1.0]])
-Dense1.biases  = np.array([[0,0,0,0,0,0,0,0]])
+Dense1.weights = np.array([[0], [2.0], [4.0], [3.0], [2.0], [3.0], [4.0], [1.0]]).T
+Dense1.biases  = np.array([[1, 1, 0.5, 0, 0, 0, 0, 0]])
 
 Dense2.weights = np.random.randn(8,8)*2
 Dense2.biases  = np.zeros((1,8))
@@ -75,23 +77,18 @@ Dense3.weights = np.random.randn(8,1)*2
 Dense3.biases  = np.zeros((1,1))
 
 output1 = Dense1.forward(inputs)
-Act_output1 = relu.forward(output1)
+Act_output1 = sigm.forward(output1)
 
 output2 = Dense2.forward(Act_output1)
-Act_output2 = relu.forward(output2)
+Act_output2 = tanh.forward(output2)
 
 output3 = Dense3.forward(Act_output2)
-Act_output3 = relu.forward(output3)
+Act_output3 = tanh.forward(output3)
 
-print(output1)  # 실제로 forward 메서드의 출력값을 출력
-# 행렬을 설명하자면  [첫 데이터에 대한 출력값5개]
-#                [두번째 데이터에 대한 출력값5개] -------
-
+# print(Act_output3)
 
 plt.plot(inputs, y, label="True Sine Wave", color="blue")
-plt.plot(inputs, output3.output, label="NN Output", color="red")
+plt.plot(inputs, Act_output3, label="DNN Output", color="red")
 plt.legend()    # 축의 각 색깔이 무엇을 의미하는지
 plt.title("Sine Wave Approximation using Neural Network")
 plt.show()
-
-
