@@ -1,12 +1,12 @@
-import numpy as np      # numpy는 행렬 연산을 쉽게하기 위해 사용
+import numpy as np
 import nnfs
 from nnfs.datasets import spiral_data
 from abc import ABC, abstractmethod
 import matplotlib.pyplot as plt     # 그래프 보려고 사용
 
-nnfs.init()  # 랜덤시드들이 고정됨 /이 기준으로만 랜덤값이 설정됨
+nnfs.init() # 랜덤시드들이 고정됨 /이 기준으로만 랜덤값이 설정됨
 
-# Define the Dense Layer!!!
+### 1. Define the Dense Layer!!!
 class Layer_Dense:
     def __init__(self, n_inputs, n_neurons, initialize_method='random'):  # 입력갯수 출력갯수 / init의 역할은 생성자! 최초로 불러질 때 한 번 실행되는 내용
         '''   걍 함수 밑에 주석땡땡땡 엔터 하면 자동으로 생김!! 개신기함
@@ -44,6 +44,8 @@ class Layer_Dense:
         #self.output = np.dot(inputs, np.array(self.weights)) + self.biases
         # type2 : return을 사용하고 싶은경우
         # retrun np.dot(inputs, np.array(self.weights)) + self.biases
+
+### 2. Activation Class
 # 추상 클래스 정의 (활성화 함수들의 공통 구조)
 class ActivationFunction(ABC):
     @abstractmethod
@@ -68,22 +70,57 @@ relu_activation = ReLUActivation()
 sigmoid_activation = SigmoidActivation()
 tanh_activation = TanhActivation()
 
+### 3. Activation Softmax Class
+#Softmax :주어진 입력값을 0과 1 사이의 값으로 변환하여 각 클래스에 속할 확률을 계산
+class Softmax:
+    def forward(self, predictions, targets):
+        #####  predictions, targets 두개를 정의해서 넣는거임
+        softmax_outputs = np.array([
+            [0.7, 0.1, 0.2],
+            [0.1, 0.5, 0.4],
+            [0.2, 0.2, 0.6]
+        ])
+        targets = np.array([0, 1, 2])
+                                                #softmax_outputs 변수명 써보기
+        loss = forward(predictions, targets)
+        print("Categorical Cross-Entropy Loss:", loss)
 
-'''
-# 샘플 데이터 생성
-inputs, y = spiral_data(samples=2, classes=3)
-plt.scatter(inputs[:, 0], inputs[:, 1], c=y, cmap='brg')
-plt.show()
-'''
-# Generate sine wave input and output
-inputs = np.linspace(0, 2 * np.pi, 100).reshape(-1,1)
-y = np.sin(inputs)
-# linspace(start, end, num)의 형식으로 start 부터 end까지를 num등분
-# reshape(-1,1) : (100) -> (100,1)로 바뀜
-# (100,1)로 표현되는 데이터가 100쌍 있다.
-# 입력의 형태, 입력의 개수는 1이다.
+### 4. Loss_Categorical_Cross_entropy
+class Loss_categorical_cross_entropy:
+    def forward(self, predictions, targets):
+        '''
+        :param predictions: Dense Later output -> Softmax 취한 출력
+        :param targets: 정답지, one-hot encoding
+        :return: categorical cross entropy loss 연산값
+        '''
 
-# Dense 레이어 생성
+        # Clip predictions to prevent log(0)
+        predictions = np.clip(predictions,1e-7, 1 - 1e-7)
+        # clip : 자르다! 식을 보면 로그가 있는데 로그0은 없잖, 정의x
+        # 컴터가 알아먹을 수 있게 "범위를 정해줌"
+        ''' e는 10을 의미 e-7 = 10^7
+        if predictions == 0:
+            predictions = 1e-7
+        '''
+
+        # If targets are sparse
+        if targets.ndim == 1:
+            correct_confidences = predictions[np.arange(len(predictions)), targets]
+        else:
+            # if targets are one-hot encoded
+            correct_confidences = np.sum(predictions * targets, axis=1)
+
+        # Calculate negative log likehood
+        negative_log_likehood = - np.log(correct_confidences)
+
+        # Calulate avergae loss
+        return np.mean(negative_log_likehood)
+
+### 5. Create dataset
+inputs, y = spiral_data(samples=100, classes=3)
+#plt.scatter(inputs[:, 0], inputs[:, 1], c=y, cmap='brg')
+#plt.show()
+
 Dense1 = Layer_Dense(1, 8, initialize_method='xavier')  # 위 샘플은 2차원공간에서 정의되기 때문에 인풋을2로 설정해야함
 Dense2 = Layer_Dense(8, 8, initialize_method='xavier')  # 인자에 위 가중치 초기화 방법 입력추가가능
 Dense3 = Layer_Dense(8, 1, initialize_method='xavier')  # 인자에 위 가중치 초기화 방법 입력추가가능
@@ -97,21 +134,19 @@ Dense2.biases  = np.zeros((1,8))
 Dense3.weights = np.random.randn(8,1)*2
 Dense3.biases  = np.zeros((1,1))
 
-#output3 = Dense3.forward(Dense2.forward(Dense1.forward(inputs)))
 # 순전파
 output1 = sigmoid_activation.forward(Dense1.forward(inputs))
 output2 = relu_activation.forward(Dense2.forward(output1))
 output3 = tanh_activation.forward(Dense3.forward(output2))
-'''
-output1 = Dense1.forward(inputs)
-Act_output1 = sigmoid_activation.forward(output1)
 
-output2 = Dense2.forward(Act_output1)
-Act_output2 = tanh_activation.forward(output2)
+### 6. forward
 
-output3 = Dense3.forward(Act_output2)
-Act_output3 = tanh_activation.forward(output3)
-'''
+### 7. loss calculation
+
+### 8. print loss
+
+# Dense 레이어 생성
+
 
 plt.plot(inputs, y, label="True Sine Wave", color="blue")
 plt.plot(inputs, output3, label="DNN Output", color="red")
