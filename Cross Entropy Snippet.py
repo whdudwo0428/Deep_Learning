@@ -74,16 +74,27 @@ tanh_activation = TanhActivation()
 #Softmax :주어진 입력값을 0과 1 사이의 값으로 변환하여 각 클래스에 속할 확률을 계산
 class Softmax:
     def forward(self, predictions, targets):
-        #####  predictions, targets 두개를 정의해서 넣는거임
-        softmax_outputs = np.array([
-            [0.7, 0.1, 0.2],
-            [0.1, 0.5, 0.4],
-            [0.2, 0.2, 0.6]
-        ])
-        targets = np.array([0, 1, 2])
-                                                #softmax_outputs 변수명 써보기
-        loss = forward(predictions, targets)
+        # Softmax 계산
+        exp_scores = np.exp(predictions - np.max(predictions, axis=1, keepdims=True))
+        softmax_outputs = exp_scores / np.sum(exp_scores, axis=1, keepdims=True)
+
+        # Categorical Cross-Entropy Loss 계산
+        num_samples = predictions.shape[0]
+        log_likelihood = -np.log(softmax_outputs[range(num_samples), targets])
+        loss = np.sum(log_likelihood) / num_samples
+        
         print("Categorical Cross-Entropy Loss:", loss)
+        return softmax_outputs
+
+# 예시 사용
+predictions = np.array([[2.0, 1.0, 0.1],
+                         [1.0, 2.0, 0.1],
+                         [0.1, 1.0, 2.0]])
+targets = np.array([0, 1, 2])
+
+softmax = Softmax()
+softmax_outputs = softmax.forward(predictions, targets)
+#print("Categorical Cross-Entropy Loss:", loss)
 
 ### 4. Loss_Categorical_Cross_entropy
 class Loss_categorical_cross_entropy:
