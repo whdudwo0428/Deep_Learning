@@ -83,18 +83,7 @@ class Softmax:
         log_likelihood = -np.log(softmax_outputs[range(num_samples), targets])
         loss = np.sum(log_likelihood) / num_samples
         
-        print("Categorical Cross-Entropy Loss:", loss)
         return softmax_outputs
-
-# 예시 사용
-predictions = np.array([[2.0, 1.0, 0.1],
-                         [1.0, 2.0, 0.1],
-                         [0.1, 1.0, 2.0]])
-targets = np.array([0, 1, 2])
-
-softmax = Softmax()
-softmax_outputs = softmax.forward(predictions, targets)
-#print("Categorical Cross-Entropy Loss:", loss)
 
 ### 4. Loss_Categorical_Cross_entropy
 class Loss_categorical_cross_entropy:
@@ -148,21 +137,20 @@ Dense3.biases  = np.zeros((1,1))
 # 순전파
 output1 = sigmoid_activation.forward(Dense1.forward(inputs))
 output2 = relu_activation.forward(Dense2.forward(output1))
-output3 = tanh_activation.forward(Dense3.forward(output2))
+output3 = Dense3.forward(output2)
 
 ### 6. forward
+softmax = Softmax()
+softmax_outputs = softmax.forward(output3, y)
 
 ### 7. loss calculation
+loss_function = Loss_categorical_cross_entropy()
+loss = loss_function.forward(softmax_outputs, y)
+print("Loss:", loss)
 
 ### 8. print loss
-
-# Dense 레이어 생성
-
-
-plt.plot(inputs, y, label="True Sine Wave", color="blue")
-plt.plot(inputs, output3, label="DNN Output", color="red")
-plt.legend()    # 축의 각 색깔이 무엇을 의미하는지
-plt.title("Sine Wave Approximation using Neural Network")
+plt.scatter(inputs[:, 0], inputs[:, 1], c=y, cmap='brg', label="True")
+plt.scatter(inputs[:, 0], inputs[:, 1], c=np.argmax(softmax_outputs, axis=1), cmap='coolwarm', marker='x', label="Predicted")
+plt.legend()     # 축의 각 색깔이 무엇을 의미하는지
+plt.title("Spiral Data Classification using Neural Network")
 plt.show()
-
-
